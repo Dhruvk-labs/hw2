@@ -172,7 +172,7 @@ Movie.includes(:studio)
      .order(:year_released)
      .each do |movie|
 
-  puts "#{movie.title.ljust(20)} #{movie.year_released.to_s.ljust(14)} #{movie.rated.ljust(6)} #{movie.studio.name}"
+  puts "#{movie.title.ljust(22)} #{movie.year_released.to_s.ljust(15)} #{movie.rated.ljust(7)} #{movie.studio.name}"
 end
 
 
@@ -189,7 +189,7 @@ Role.includes(:movie, :actor)
     .order("movies.year_released ASC, movies.title ASC, actors.name ASC")
     .each do |role|
 
-  puts "#{role.movie.title.ljust(20)} #{role.actor.name.ljust(20)} #{role.character_name}"
+  puts "#{role.movie.title.ljust(22)} #{role.actor.name.ljust(22)} #{role.character_name}"
 end
 
 
