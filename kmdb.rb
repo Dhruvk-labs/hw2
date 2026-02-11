@@ -77,14 +77,90 @@
 
 # Delete existing data, so you'll start fresh each time this script is run.
 # Use `Model.destroy_all` code.
-# TODO!
+Role.destroy_all
+Movie.destroy_all
+Actor.destroy_all
+Studio.destroy_all
+Agent.destroy_all
 
 # Generate models and tables, according to the domain model.
-# TODO!
+
+# bin/rails g model Studio name:string
+# bin/rails g model Movie title:string year_released:integer rated:string studio:references
+# bin/rails g model Agent name:string
+# bin/rails g model Actor name:string agent:references
+# bin/rails g model Role movie:references actor:references character_name:string
 
 # Insert data into the database that reflects the sample data shown above.
 # Do not use hard-coded foreign key IDs.
-# TODO!
+
+# Studios
+warner = Studio.create!(name: "Warner Bros.")
+
+# Movies
+batman_begins = Movie.create!(
+  title: "Batman Begins",
+  year_released: 2005,
+  rated: "PG-13",
+  studio: warner
+)
+
+dark_knight = Movie.create!(
+  title: "The Dark Knight",
+  year_released: 2008,
+  rated: "PG-13",
+  studio: warner
+)
+
+dark_knight_rises = Movie.create!(
+  title: "The Dark Knight Rises",
+  year_released: 2012,
+  rated: "PG-13",
+  studio: warner
+)
+
+# Agents
+expensive = Agent.create!(name: "Expensive Artists Agency")
+mba = Agent.create!(name: "MBA Talent Agency")
+independent = Agent.create!(name: "Independent")
+
+# Actors
+christian_bale = Actor.create!(name: "Christian Bale", agent: expensive)
+michael_caine = Actor.create!(name: "Michael Caine", agent: expensive)
+liam_neeson = Actor.create!(name: "Liam Neeson", agent: mba)
+katie_holmes = Actor.create!(name: "Katie Holmes", agent: expensive)
+gary_oldman = Actor.create!(name: "Gary Oldman", agent: mba)
+
+heath_ledger = Actor.create!(name: "Heath Ledger", agent: expensive)
+aaron_eckhart = Actor.create!(name: "Aaron Eckhart", agent: mba)
+maggie_gyllenhaal = Actor.create!(name: "Maggie Gyllenhaal", agent: mba)
+
+tom_hardy = Actor.create!(name: "Tom Hardy", agent: expensive)
+joseph_gordon_levitt = Actor.create!(name: "Joseph Gordon-Levitt", agent: expensive)
+anne_hathaway = Actor.create!(name: "Anne Hathaway", agent: mba)
+
+# UPDATE equivalent
+heath_ledger.update!(agent: independent)
+
+# Roles
+Role.create!(movie: batman_begins, actor: christian_bale, character_name: "Bruce Wayne")
+Role.create!(movie: batman_begins, actor: michael_caine, character_name: "Alfred")
+Role.create!(movie: batman_begins, actor: liam_neeson, character_name: "Ra's al Ghul")
+Role.create!(movie: batman_begins, actor: katie_holmes, character_name: "Rachel Dawes")
+Role.create!(movie: batman_begins, actor: gary_oldman, character_name: "Commissioner Gordon")
+
+Role.create!(movie: dark_knight, actor: christian_bale, character_name: "Bruce Wayne")
+Role.create!(movie: dark_knight, actor: heath_ledger, character_name: "Joker")
+Role.create!(movie: dark_knight, actor: aaron_eckhart, character_name: "Harvey Dent")
+Role.create!(movie: dark_knight, actor: michael_caine, character_name: "Alfred")
+Role.create!(movie: dark_knight, actor: maggie_gyllenhaal, character_name: "Rachel Dawes")
+
+Role.create!(movie: dark_knight_rises, actor: christian_bale, character_name: "Bruce Wayne")
+Role.create!(movie: dark_knight_rises, actor: tom_hardy, character_name: "Bane")
+Role.create!(movie: dark_knight_rises, actor: joseph_gordon_levitt, character_name: "John Blake")
+Role.create!(movie: dark_knight_rises, actor: anne_hathaway, character_name: "Selina Kyle")
+Role.create!(movie: dark_knight_rises, actor: michael_caine, character_name: "Alfred")
+
 
 # Prints a header for the movies output
 puts "Movies"
@@ -92,7 +168,14 @@ puts "======"
 puts ""
 
 # Query the movies data and loop through the results to display the movies output.
-# TODO!
+Movie.includes(:studio)
+     .order(:year_released)
+     .each do |movie|
+
+  puts "#{movie.title.ljust(20)} #{movie.year_released.to_s.ljust(14)} #{movie.rated.ljust(6)} #{movie.studio.name}"
+end
+
+
 
 # Prints a header for the cast output
 puts ""
@@ -101,7 +184,14 @@ puts "========"
 puts ""
 
 # Query the cast data and loop through the results to display the cast output for each movie.
-# TODO!
+Role.includes(:movie, :actor)
+    .joins(:movie)
+    .order("movies.year_released ASC, movies.title ASC, actors.name ASC")
+    .each do |role|
+
+  puts "#{role.movie.title.ljust(20)} #{role.actor.name.ljust(20)} #{role.character_name}"
+end
+
 
 # Prints a header for the agent's list of represented actors output
 puts ""
@@ -110,4 +200,10 @@ puts "===================="
 puts ""
 
 # Query the actor data and loop through the results to display the agent's list of represented actors output.
-# TODO!
+Actor.includes(:agent)
+     .joins(:agent)
+     .order("agents.name ASC, actors.name ASC")
+     .each do |actor|
+
+  puts "#{actor.agent.name.ljust(25)} #{actor.name}"
+end
